@@ -10,14 +10,17 @@ public class Client {
     private String tel;
     private String address;
     private String email;
+    private double salaire;
 
-    public Client(String firstName,String lastName,String cin,String tel,String address,String email){
+    public Client(UUID id,String firstName,String lastName,String cin,String tel,String address,String email,double salaire){
+        this.id=id;
         this.firstName=firstName;
         this.lastName=lastName;
         this.cin=cin;
         this.tel=tel;
         this.address=address;
         this.email=email;
+        this.salaire=salaire;
     }
     public UUID getId(){
         return this.id;
@@ -57,6 +60,12 @@ public class Client {
     }
     public void setEmail(String newEmail){
         this.email=newEmail;
+    }
+    public double getSalaire(){
+        return this.salaire;
+    }
+    public void setSalaire(double newSalaire){
+        this.salaire=newSalaire;
     }
 
 }

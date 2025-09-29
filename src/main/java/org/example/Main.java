@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.example.controllers.AuthController;
 import org.example.models.User;
+import org.example.repositories.implementations.ClientRepositoryImpl;
+import org.example.repositories.interfaces.ClientRepository;
 import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
 import org.example.services.AuthService;
@@ -16,7 +18,8 @@ public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final UserRepository userRepository = new UserRepositoryImpl();
-    private static final AuthService authService = new AuthService(userRepository); // instance unique
+    private static final ClientRepository clientRepository=new ClientRepositoryImpl();
+    private static final AuthService authService = new AuthService(userRepository,clientRepository); // instance unique
     private static final AuthController authController = new AuthController(authService);
 
     public static void main(String[] args) {
@@ -96,7 +99,8 @@ public class Main {
         int choice;
         do {
             System.out.println("\n===== MENU TELLER =====");
-            System.out.println("1. Create account");
+
+            System.out.println("1. Create client");
             System.out.println("2. Depot d'un montant");
             System.out.println("3. retrait d'un montant");
             System.out.println("4. virement a un compte interne");
@@ -105,14 +109,13 @@ public class Main {
             System.out.println("7. Déconnexion");
 
             choice = scanner.nextInt();
+            scanner.nextLine();
 
 
             switch (choice) {
                 case 1 -> {
-                    System.out.println("ajouter un compte");
-                    addClientAccount();
-
-
+                    System.out.println("ajouter un client");
+                    addClient();
                 }
                 case 2 -> System.out.println("depot");
                 case 3 -> System.out.println("retrait");
@@ -177,7 +180,38 @@ public class Main {
 
     }
 
-    private static void addClientAccount(){
+    private static void addClient(){
+        System.out.println("===== CRÉATION D’UN CLIENT =====");
+
+        System.out.print("Prenom: ");
+        String prenom =scanner.nextLine().trim();
+
+        System.out.println("Nom: ");
+        String nom=scanner.nextLine().trim();
+
+        System.out.println("CIN: ");
+        String cin=scanner.nextLine();
+
+        System.out.println("Tel: ");
+        String tel=scanner.nextLine();
+
+        System.out.println("Adresse: ");
+        String addresse=scanner.nextLine();
+
+        System.out.println("Email: ");
+        String email=scanner.nextLine();
+
+        System.out.println("Salaire: \n");
+        double salaire =scanner.nextDouble();
+
+        boolean success=authController.createClient(nom,prenom,cin,tel,addresse,email,salaire);
+        if(success){
+            System.out.println("Utilisateur créé avec succès !");
+        }else System.out.println("Erreur lors de la création de l’utilisateur.");
+
+
+
+
 
     }
 

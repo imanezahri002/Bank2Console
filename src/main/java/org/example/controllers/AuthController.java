@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import org.example.models.Client;
 import org.example.models.User;
 import org.example.services.AuthService;
 
@@ -15,7 +16,7 @@ public class AuthController {
 
     public boolean validateEmail(String email){
         if(!email.contains("@")){
-            System.out.println("ila faut que email aura @");
+            System.out.println("il faut que email aura @");
             return false;
         }
         return true;
@@ -31,6 +32,22 @@ public class AuthController {
 
     }
 
+    public static boolean validateTelephone(String telephone) {
+        if (telephone == null || !telephone.matches("\\d{1,10}")) {
+            System.out.println("Le numéro de téléphone doit contenir max 10 chiffres");
+            return false;
+        }
+        return true;
+    }
+    public static boolean validateCIN(String cin) {
+        if (cin == null || cin.trim().isEmpty()) {
+            System.out.println("Le CIN est obligatoire");
+            return false;
+        }
+        return true;
+    }
+
+
     public boolean validateRole(String roleInput){
         try {
             User.Role.valueOf(roleInput.toUpperCase());
@@ -42,12 +59,21 @@ public class AuthController {
     }
     public boolean createUser(String name, String email, String password, String roleInput) {
         if (!validateEmail(email) || !validatePassword(password) || !validateRole(roleInput)) {
-            System.out.println("❌ Données invalides");
+            System.out.println("Données invalides");
             return false;
         }
         User.Role role = User.Role.valueOf(roleInput);
         User user = new User(null, name, email, password, role);
         return authService.createUser(user);
+    }
+    public boolean createClient(String nom,String prenom,String email,String cin,String tel,String adresse,double salaire){
+        if(!validateEmail(email)||!validateCIN(cin)||!validateTelephone(tel)){
+            System.out.println("Données invalides");
+            return false;
+        }
+        Client client =new Client(null,nom,prenom,cin,tel,adresse,email,salaire);
+        return authService.createClient(client);
+
     }
     public Optional<User> login(String email, String password) {
 
@@ -63,4 +89,6 @@ public class AuthController {
 
         return userOpt;
     }
+
+
 }
