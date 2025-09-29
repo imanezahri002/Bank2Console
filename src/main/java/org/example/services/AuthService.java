@@ -14,5 +14,9 @@ public class AuthService {
     public Optional<User> login(String email,String password){
         return userRepository.findByEmailAndPassword(email, password);
     }
+
+    public boolean createUser(User user) {
+        return userRepository.addUser(user);
+    }
 }
 

@@ -16,9 +16,15 @@ public class DatabaseConnection {
 
     private DatabaseConnection() {}
 
-
-    // Nouvelle connexion à chaque appel
-    public static Connection getInstance() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public static Connection getInstance() {
+        if (connection == null) {
+            try {
+                connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                System.out.println("✅ Connexion établie avec succès !");
+            } catch (SQLException e) {
+                System.out.println("❌ Erreur de connexion à la base : " + e.getMessage());
+            }
+        }
+        return connection;
     }
 }

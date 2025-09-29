@@ -5,14 +5,19 @@ import java.util.Scanner;
 import java.util.UUID;
 import java.util.List;
 
+import org.example.controllers.AuthController;
 import org.example.models.User;
 import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
+import org.example.services.AuthService;
+
 
 public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final UserRepository userRepository = new UserRepositoryImpl();
+    private static final AuthService authService = new AuthService(userRepository); // instance unique
+    private static final AuthController authController = new AuthController(authService);
 
     public static void main(String[] args) {
         int choice;
@@ -43,26 +48,25 @@ public class Main {
         System.out.print("Password: ");
         String password = scanner.nextLine();
 
-        Optional<User> userOpt = userRepository.findByEmailAndPassword(email, password);
-
+        Optional<User> userOpt = authController.login(email, password);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            System.out.println("✅ Login réussi !");
+            System.out.println("Login réussi !");
             System.out.println("Bienvenue " + user.getName() + " (role: " + user.getRole() + ")");
 
-            switch (user.getName().toUpperCase()) {
-                case "ADMIN" -> adminMenu();
-                case "MANAGER" -> System.out.println("➡️ Menu MANAGER (à implémenter)");
-                case "TELLER" -> System.out.println("➡️ Menu TELLER (à implémenter)");
-                case "AUDITOR" -> System.out.println("➡️ Menu AUDITOR (à implémenter)");
-                default -> System.out.println("❌ Rôle inconnu.");
+            switch (user.getRole()) {
+                case ADMIN -> adminMenu();
+                case MANAGER -> System.out.println("➡️ Menu MANAGER ");
+                case TELLER -> tellerMenu();
+                case AUDITOR -> System.out.println("➡️ Menu AUDITOR ");
+                default -> System.out.println("Rôle inconnu.");
             }
         } else {
-            System.out.println("❌ Login échoué, utilisateur introuvable.");
+            System.out.println("Login échoué, utilisateur introuvable.");
         }
     }
 
-    // === MENU ADMIN (Super utilisateur) ===
+
     private static void adminMenu() {
         int choice;
         do {
@@ -88,6 +92,39 @@ public class Main {
         } while (choice != 5);
     }
 
+    private static void tellerMenu() {
+        int choice;
+        do {
+            System.out.println("\n===== MENU TELLER =====");
+            System.out.println("1. Create account");
+            System.out.println("2. Depot d'un montant");
+            System.out.println("3. retrait d'un montant");
+            System.out.println("4. virement a un compte interne");
+            System.out.println("5. demande de crédit");
+            System.out.println("6. demande de cloture");
+            System.out.println("7. Déconnexion");
+
+            choice = scanner.nextInt();
+
+
+            switch (choice) {
+                case 1 -> {
+                    System.out.println("ajouter un compte");
+                    addClientAccount();
+
+
+                }
+                case 2 -> System.out.println("depot");
+                case 3 -> System.out.println("retrait");
+                case 4 -> System.out.println("virement");
+                case 5 -> System.out.println("credit");
+                case 6 -> System.out.println("cloture");
+                case 7 -> System.out.println("deconnexion");
+                default -> System.out.println("Choix invalide, essayez encore.");
+            }
+        } while (choice != 7);
+    }
+
     private static void userManagementMenu() {
         int choice;
         do {
@@ -104,12 +141,13 @@ public class Main {
 
             switch (choice) {
                 case 1 -> {
-                    System.out.println("👉 Création d’un compte (à implémenter)");
+                    System.out.println("👉 Création d’un compte utilisateur");
                     createUser();
-                    }
-                case 2 -> System.out.println("👉 Modification d’un compte (à implémenter)");
-                case 3 -> System.out.println("👉 Suppression d’un compte (à implémenter)");
-                case 4 -> System.out.println("👉 Liste des comptes par rôle (à implémenter)");
+                }
+                case 2 -> System.out.println("👉 Modification d’un compte utilisateur");
+
+                case 3 -> System.out.println("👉 Suppression d’un compte");
+                case 4 -> System.out.println("👉 Liste des comptes par rôle");
                 case 5 -> System.out.println("↩️ Retour au menu ADMIN");
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
@@ -130,27 +168,22 @@ public class Main {
 
         System.out.print("Rôle (MANAGER / TELLER / AUDITOR): \n");
         String roleInput = scanner.nextLine().toUpperCase();
-
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(password);
-        try {
-            User.Role role = User.Role.valueOf(roleInput); // conversion String → Enum
-            user.setRole(role);
-        } catch (IllegalArgumentException e) {
-            System.out.println("⚠️ Rôle invalide. Veuillez choisir TELLER / MANAGER / AUDITOR.");
-        }
-
-
-        boolean success = userRepository.addUser(user);
-
+        boolean success = authController.createUser(name, email, password, roleInput);
         if (success) {
             System.out.println("Utilisateur créé avec succès !");
         } else {
             System.out.println("Erreur lors de la création de l’utilisateur.");
         }
+
     }
+
+    private static void addClientAccount(){
+
+    }
+
 }
+
+
+
+
 

@@ -13,13 +13,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UserRepositoryImpl implements UserRepository {
+    private final Connection connection;
+
+    public UserRepositoryImpl() {
+        this.connection = DatabaseConnection.getInstance();
+    }
 
     @Override
     public Optional<User> findByEmailAndPassword(String email, String password) {
         String sql = "SELECT id, email, role,name FROM \"User\" WHERE email = ? AND password = ?";
 
-        try (Connection conn = DatabaseConnection.getInstance();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -27,12 +31,13 @@ public class UserRepositoryImpl implements UserRepository {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                User user = new User();
-                user.setId(rs.getObject("id", UUID.class));
-                user.setName(rs.getString("name"));
-                user.setEmail(rs.getString("email"));
+                UUID id=rs.getObject("id", UUID.class);
+                String name = rs.getString("name");
+                String emailDb = rs.getString("email");
                 String roleStr = rs.getString("role");
-                user.setRole(User.Role.valueOf(roleStr.toUpperCase()));
+
+                User user = new User(id,name, emailDb, password, User.Role.valueOf(roleStr.toUpperCase()));
+
                 return Optional.of(user);
             }
         } catch (SQLException e) {
@@ -45,8 +50,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     public boolean addUser(User user){
         String sql="INSERT INTO \"User\" (name,email,password,role) values (?,?,?,?::role_enum)";
-        try (Connection conn=DatabaseConnection.getInstance();
-                PreparedStatement stmt=conn.prepareStatement(sql)){
+        try (PreparedStatement stmt=connection.prepareStatement(sql)){
 
                 stmt.setString(1,user.getName());
                 stmt.setString(2,user.getEmail());
