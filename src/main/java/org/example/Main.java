@@ -8,10 +8,13 @@ import java.util.List;
 import org.example.controllers.AuthController;
 import org.example.models.Client;
 import org.example.models.User;
+import org.example.repositories.implementations.AccountRepositoryImpl;
 import org.example.repositories.implementations.ClientRepositoryImpl;
+import org.example.repositories.interfaces.AccountRepository;
 import org.example.repositories.interfaces.ClientRepository;
 import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
+import org.example.services.AccountService;
 import org.example.services.AuthService;
 import org.example.services.ClientService;
 
@@ -24,7 +27,8 @@ public class Main {
     private static final ClientService clientService=new ClientService(clientRepository);
     private static final AuthService authService = new AuthService(userRepository,clientRepository); // instance unique
     private static final AuthController authController = new AuthController(authService);
-
+    private static final AccountRepository accountRepository=new AccountRepositoryImpl();
+    private static final AccountService accountService=new AccountService(accountRepository);
 
     public static void main(String[] args) {
         int choice;
@@ -238,6 +242,7 @@ public class Main {
     }
     private static void createBankAccountForClient(Client client){
         System.out.println("creation du compte");
+
 
     }
 
