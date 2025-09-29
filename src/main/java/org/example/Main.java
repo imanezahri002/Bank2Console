@@ -6,12 +6,14 @@ import java.util.UUID;
 import java.util.List;
 
 import org.example.controllers.AuthController;
+import org.example.models.Client;
 import org.example.models.User;
 import org.example.repositories.implementations.ClientRepositoryImpl;
 import org.example.repositories.interfaces.ClientRepository;
 import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
 import org.example.services.AuthService;
+import org.example.services.ClientService;
 
 
 public class Main {
@@ -19,8 +21,10 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final UserRepository userRepository = new UserRepositoryImpl();
     private static final ClientRepository clientRepository=new ClientRepositoryImpl();
+    private static final ClientService clientService=new ClientService(clientRepository);
     private static final AuthService authService = new AuthService(userRepository,clientRepository); // instance unique
     private static final AuthController authController = new AuthController(authService);
+
 
     public static void main(String[] args) {
         int choice;
@@ -101,7 +105,7 @@ public class Main {
             System.out.println("\n===== MENU TELLER =====");
 
             System.out.println("1. Create client");
-            System.out.println("2. Depot d'un montant");
+            System.out.println("2. ajouter compte");
             System.out.println("3. retrait d'un montant");
             System.out.println("4. virement a un compte interne");
             System.out.println("5. demande de crédit");
@@ -117,7 +121,11 @@ public class Main {
                     System.out.println("ajouter un client");
                     addClient();
                 }
-                case 2 -> System.out.println("depot");
+                case 2 -> {
+                    System.out.println("ajouter un compte");
+                    addAccount();
+                }
+
                 case 3 -> System.out.println("retrait");
                 case 4 -> System.out.println("virement");
                 case 5 -> System.out.println("credit");
@@ -126,6 +134,7 @@ public class Main {
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
         } while (choice != 7);
+        scanner.close();
     }
 
     private static void userManagementMenu() {
@@ -183,35 +192,52 @@ public class Main {
     private static void addClient(){
         System.out.println("===== CRÉATION D’UN CLIENT =====");
 
-        System.out.print("Prenom: ");
-        String prenom =scanner.nextLine().trim();
+        System.out.print("Prenom: \n");
+        String prenom =scanner.nextLine();
 
-        System.out.println("Nom: ");
-        String nom=scanner.nextLine().trim();
+        System.out.print("Nom: \n");
+        String nom=scanner.nextLine();
 
-        System.out.println("CIN: ");
+        System.out.print("CIN: \n");
         String cin=scanner.nextLine();
 
-        System.out.println("Tel: ");
+        System.out.print("Tel: \n");
         String tel=scanner.nextLine();
 
-        System.out.println("Adresse: ");
+        System.out.print("Adresse: \n");
         String addresse=scanner.nextLine();
 
-        System.out.println("Email: ");
+        System.out.print("Email: \n");
         String email=scanner.nextLine();
 
-        System.out.println("Salaire: \n");
+        System.out.print("Salaire: \n");
         double salaire =scanner.nextDouble();
 
         boolean success=authController.createClient(nom,prenom,cin,tel,addresse,email,salaire);
         if(success){
             System.out.println("Utilisateur créé avec succès !");
         }else System.out.println("Erreur lors de la création de l’utilisateur.");
+    }
 
+    private static void addAccount(){
+        System.out.println("===== CRÉATION D’UN COMPTE =====");
 
+        System.out.print("Veuiller saisir Cin: \n");
+        String cin =scanner.nextLine();
 
+        Optional<Client> clientOpt = clientService.findByCin(cin);
 
+        if (clientOpt.isPresent()) {
+            Client client = clientOpt.get();
+            System.out.println("Client trouvé : " + client.getFirstName() + " " + client.getLastName());
+
+            createBankAccountForClient(client);
+        } else {
+            System.out.println("Aucun client trouvé avec ce CIN. Veuillez d'abord créer le client.");
+        }
+    }
+    private static void createBankAccountForClient(Client client){
+        System.out.println("creation du compte");
 
     }
 

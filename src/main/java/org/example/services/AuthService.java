@@ -9,12 +9,12 @@ import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
 
 public class AuthService {
-    private final UserRepositoryImpl userRepository;
-    private final ClientRepositoryImpl clientRepository;
+    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     public AuthService(UserRepository userRepository, ClientRepository clientRepository) {
-        this.userRepository = new UserRepositoryImpl();
-        this.clientRepository=new ClientRepositoryImpl();
+        this.userRepository = userRepository;
+        this.clientRepository=clientRepository;
     }
     public Optional<User> login(String email,String password){
         return userRepository.findByEmailAndPassword(email, password);

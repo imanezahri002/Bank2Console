@@ -66,13 +66,15 @@ public class AuthController {
         User user = new User(null, name, email, password, role);
         return authService.createUser(user);
     }
-    public boolean createClient(String nom,String prenom,String email,String cin,String tel,String adresse,double salaire){
+    public boolean createClient(String nom, String prenom, String cin, String tel, String adresse, String email, double salaire){
         if(!validateEmail(email)||!validateCIN(cin)||!validateTelephone(tel)){
             System.out.println("Données invalides");
             return false;
         }
+        else{
         Client client =new Client(null,nom,prenom,cin,tel,adresse,email,salaire);
         return authService.createClient(client);
+        }
 
     }
     public Optional<User> login(String email, String password) {
