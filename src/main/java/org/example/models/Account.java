@@ -2,6 +2,7 @@ package org.example.models;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -13,21 +14,20 @@ public class Account {
     private boolean is_active;
     private Instant created_at;
     private Instant updated_at;
-    public AccountType type;
+    public  AccountType type;
     private Client client;
 
     public enum AccountType{COURANT,EPARGNE,CREDIT};
 
-    public Account(UUID id, String accountNumber, BigDecimal balance,AccountType type, Client client,boolean isActive,
-                   Instant createdAt, Instant updatedAt) {
+    public Account(UUID id, String accountNumber, BigDecimal balance,AccountType type, Client client,boolean is_active,Instant created_at,Instant updated_at) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.type = type;
         this.client = client;
-        this.is_active=true;
-        this.created_at=Instant.now();
-        this.updated_at=Instant.now();
+        this.is_active=is_active;
+        this.created_at=created_at;
+        this.updated_at=updated_at;
 
     }
 
@@ -89,6 +89,13 @@ public class Account {
     public void setUpdatedAt(Instant updatedAt) {
         this.updated_at = updatedAt;
     }
+    public static String generateAccountNumber() {
+        Random random = new Random();
+        int number = 100000 + random.nextInt(900000); // génère 6 chiffres aléatoires
+        return "ACC" + number;
+    }
+
+
 
 
 

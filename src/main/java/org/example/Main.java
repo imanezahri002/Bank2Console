@@ -1,11 +1,14 @@
 package org.example;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.List;
 
 import org.example.controllers.AuthController;
+import org.example.models.Account;
 import org.example.models.Client;
 import org.example.models.User;
 import org.example.repositories.implementations.AccountRepositoryImpl;
@@ -234,14 +237,32 @@ public class Main {
         if (clientOpt.isPresent()) {
             Client client = clientOpt.get();
             System.out.println("Client trouvé : " + client.getFirstName() + " " + client.getLastName());
-
             createBankAccountForClient(client);
         } else {
             System.out.println("Aucun client trouvé avec ce CIN. Veuillez d'abord créer le client.");
         }
     }
     private static void createBankAccountForClient(Client client){
-        System.out.println("creation du compte");
+
+        System.out.print("Veuillez saisir balance\n");
+        BigDecimal balance =scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        System.out.print("Veuillez saisir Type de l'account (COURANT,EPARGNE,CREDIT)\n");
+        String accountInput=scanner.nextLine();
+
+        Account.AccountType typeAcount = Account.AccountType.valueOf(accountInput.toUpperCase());
+
+        String accountNumber=Account.generateAccountNumber();
+        Account account=new Account(null,accountNumber,balance,typeAcount,client,true, Instant.now(),Instant.now());
+
+        boolean success=accountService.createAccount(account);
+
+        if(success){
+            System.out.println("le compte est ajoutée avec succes");
+        }else{
+            System.out.println("l'ajout est achouée");
+        }
 
 
     }

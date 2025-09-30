@@ -2,12 +2,12 @@ package org.example.repositories.implementations;
 
 import org.example.database.DatabaseConnection;
 import org.example.models.Account;
+import org.example.models.Client;
 import org.example.repositories.interfaces.AccountRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class AccountRepositoryImpl implements AccountRepository {
@@ -20,20 +20,19 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public boolean create(Account account) {
-        String sql = "INSERT INTO \"Account\" (id, accountnumber, balance, type, client_id, is_active, created_at, updated_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO \"Account\" (accountnumber, balance, type, client_id, is_active, created_at, updated_at) " +
+                "VALUES ( ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
 
-            stmt.setObject(1, account.getId());
-            stmt.setString(2, account.getAccountNumber());
-            stmt.setBigDecimal(3, account.getBalance());
-            stmt.setString(4, account.getType().name());
-            stmt.setObject(5, account.getClient().getId());
-            stmt.setBoolean(6, account.isActive());
-            stmt.setTimestamp(7, Timestamp.from(account.getCreatedAt()));
-            stmt.setTimestamp(8, Timestamp.from(account.getUpdatedAt()));
+            stmt.setString(1, account.getAccountNumber());
+            stmt.setBigDecimal(2, account.getBalance());
+            stmt.setObject(3, account.getType().name(), java.sql.Types.OTHER);
+            stmt.setObject(4, account.getClient().getId());
+            stmt.setBoolean(5, account.isActive());
+            stmt.setTimestamp(6, Timestamp.from(account.getCreatedAt()));
+            stmt.setTimestamp(7, Timestamp.from(account.getUpdatedAt()));
 
             int rowsInserted=stmt.executeUpdate();
             return rowsInserted > 0;
@@ -43,4 +42,35 @@ public class AccountRepositoryImpl implements AccountRepository {
             return false;
         }
     }
+
+    @Override
+    public List<Account> findAccountsByClient(Client client) {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT id, accountnumber, balance, type, client_id, is_active, created_at, updated_at " +
+                "FROM \"Account\" WHERE client_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setObject(1, client.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Account account = new Account(
+                        rs.getObject("id", UUID.class),
+                        rs.getString("accountnumber"),
+                        rs.getBigDecimal("balance"),
+                        Account.AccountType.valueOf(rs.getString("type")),
+                        client,
+                        rs.getBoolean("is_active"),
+                        rs.getTimestamp("created_at").toInstant(),
+                        rs.getTimestamp("updated_at").toInstant()
+                );
+                accounts.add(account);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return accounts;
+    }
+
 }
