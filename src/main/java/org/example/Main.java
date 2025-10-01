@@ -13,13 +13,16 @@ import org.example.models.Client;
 import org.example.models.User;
 import org.example.repositories.implementations.AccountRepositoryImpl;
 import org.example.repositories.implementations.ClientRepositoryImpl;
+import org.example.repositories.implementations.TransactionRepositoryImpl;
 import org.example.repositories.interfaces.AccountRepository;
 import org.example.repositories.interfaces.ClientRepository;
+import org.example.repositories.interfaces.TransactionRepository;
 import org.example.repositories.interfaces.UserRepository;
 import org.example.repositories.implementations.UserRepositoryImpl;
 import org.example.services.AccountService;
 import org.example.services.AuthService;
 import org.example.services.ClientService;
+import org.example.services.TransactionService;
 
 
 public class Main {
@@ -32,6 +35,8 @@ public class Main {
     private static final AuthController authController = new AuthController(authService);
     private static final AccountRepository accountRepository=new AccountRepositoryImpl();
     private static final AccountService accountService=new AccountService(accountRepository);
+    private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl();
+    private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository);
 
     public static void main(String[] args) {
         int choice;
@@ -113,6 +118,7 @@ public class Main {
 
             System.out.println("1. Create client");
             System.out.println("2. ajouter compte");
+            System.out.println("3. deposer un montant");
             System.out.println("3. retrait d'un montant");
             System.out.println("4. virement a un compte interne");
             System.out.println("5. demande de crédit");
@@ -133,8 +139,12 @@ public class Main {
                     addAccount();
                 }
 
-                case 3 -> System.out.println("retrait");
-                case 4 -> System.out.println("virement");
+                case 3 -> {
+                    System.out.println("Deposer");
+                    deposit();
+                }
+                case 4 -> System.out.println("Retrait");
+
                 case 5 -> System.out.println("credit");
                 case 6 -> System.out.println("cloture");
                 case 7 -> System.out.println("deconnexion");
@@ -172,7 +182,6 @@ public class Main {
             }
         } while (choice != 5);
     }
-
     private static void createUser() {
         System.out.println("\n===== CRÉATION D’UN UTILISATEUR =====");
 
@@ -195,7 +204,6 @@ public class Main {
         }
 
     }
-
     private static void addClient(){
         System.out.println("===== CRÉATION D’UN CLIENT =====");
 
@@ -225,7 +233,6 @@ public class Main {
             System.out.println("Utilisateur créé avec succès !");
         }else System.out.println("Erreur lors de la création de l’utilisateur.");
     }
-
     private static void addAccount(){
         System.out.println("===== CRÉATION D’UN COMPTE =====");
 
@@ -266,6 +273,47 @@ public class Main {
 
 
     }
+
+    private static void deposit() {
+        System.out.print("Veuillez saisir le CIN du client : ");
+        String cin = scanner.nextLine();
+
+        Optional<Client> clientOpt = clientService.findByCin(cin);
+
+        if (clientOpt.isEmpty()) {
+            System.out.println("Client introuvable !!");
+            return;
+        }
+        Client client = clientOpt.get();
+        List<Account> accounts = accountRepository.findAccountsByClient(client);
+
+        if (accounts.isEmpty()) {
+            System.out.println("Ce client n’a aucun compte !");
+            return;
+        }
+
+        System.out.println("Comptes disponibles : ");
+        for (int i = 0; i < accounts.size(); i++) {
+            Account acc = accounts.get(i);
+            System.out.println(acc);
+        }
+
+        System.out.print("Choisissez le numéro du compte : ");
+        String numCompte = scanner.nextLine();
+
+        System.out.print("Montant à déposer : ");
+        BigDecimal amount = scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        boolean success = transactionService.deposit(numCompte, amount);
+
+        if (success) {
+            System.out.println("Dépôt effectué avec succès !");
+        } else {
+            System.out.println("Échec du dépôt.");
+        }
+    }
+
 
 }
 

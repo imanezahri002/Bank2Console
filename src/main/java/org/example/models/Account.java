@@ -14,20 +14,22 @@ public class Account {
     private boolean is_active;
     private Instant created_at;
     private Instant updated_at;
-    public  AccountType type;
+    public AccountType type;
     private Client client;
 
-    public enum AccountType{COURANT,EPARGNE,CREDIT};
+    public enum AccountType {COURANT, EPARGNE, CREDIT}
 
-    public Account(UUID id, String accountNumber, BigDecimal balance,AccountType type, Client client,boolean is_active,Instant created_at,Instant updated_at) {
+    ;
+
+    public Account(UUID id, String accountNumber, BigDecimal balance, AccountType type, Client client, boolean is_active, Instant created_at, Instant updated_at) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.type = type;
         this.client = client;
-        this.is_active=is_active;
-        this.created_at=created_at;
-        this.updated_at=updated_at;
+        this.is_active = is_active;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
 
     }
 
@@ -71,8 +73,13 @@ public class Account {
         this.client = client;
     }
 
-    public boolean isActive() { return is_active; }
-    public void setActive(boolean active) { this.is_active = active; }
+    public boolean isActive() {
+        return is_active;
+    }
+
+    public void setActive(boolean active) {
+        this.is_active = active;
+    }
 
     public Instant getCreatedAt() {
         return created_at;
@@ -86,9 +93,23 @@ public class Account {
         return updated_at;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updated_at = updatedAt;
+    public void setUpdatedAt(Instant updatedAt){this.updated_at=updated_at;}
+
+    @Override
+    public String toString() {
+        return "Account {" +
+                "id=" + id +
+                ", accountNumber='" + accountNumber + '\'' +
+                ", balance=" + balance +
+                ", type=" + type +
+                ", client=" + client.getId() +
+                ", is_active=" + is_active +
+                ", created_at=" + created_at +
+                ", updated_at=" + updated_at +
+                '}';
     }
+
+
     public static String generateAccountNumber() {
         Random random = new Random();
         int number = 100000 + random.nextInt(900000); // génère 6 chiffres aléatoires

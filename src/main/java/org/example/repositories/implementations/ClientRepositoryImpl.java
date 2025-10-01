@@ -20,7 +20,7 @@ public class ClientRepositoryImpl implements ClientRepository {
     }
     @Override
     public boolean createClient(Client client){
-        String sql="INSERT INTO \"client\" (firstname,lastname,cin,phonenumber,address,email,salaire) values (?,?,?,?,?,?,?)";
+        String sql="INSERT INTO \"Client\" (firstname,lastname,cin,phonenumber,address,email,salaire) values (?,?,?,?,?,?,?)";
         try(PreparedStatement stm=connection.prepareStatement(sql)){
             stm.setString(1,client.getFirstName());
             stm.setString(2,client.getLastName());
@@ -40,7 +40,7 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public Optional<Client> findByCin(String cin){
-        String sql="SELECT * FROM \"client\" WHERE cin= ?";
+        String sql="SELECT * FROM \"Client\" WHERE cin= ?";
         try(PreparedStatement stm=connection.prepareStatement(sql)) {
             stm.setString(1, cin);
             ResultSet rs = stm.executeQuery();
