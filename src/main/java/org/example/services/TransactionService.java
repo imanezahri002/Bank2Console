@@ -70,33 +70,33 @@ public class TransactionService {
         return transactionRepository.transactionTransferIn(accountS, accountD, amount);
     }
 
-//    public boolean transferOut(String nrCptExterne,String numCptClient,BigDecimal amount) {
-//        Optional<Account> accountSource = accountRepository.findByNumCpt(nrCptExterne);
-//        Optional<Account> accountDestination = accountRepository.findByNumCpt(numCptClient);
-//
-//        if (accountSource.isEmpty() || accountDestination.isEmpty()) {
-//            System.out.println("Compte introuvable !");
-//            return false;
-//        }
-//
-//
-//        Account accountS = accountSource.get();
-//        Account accountD = accountDestination.get();
-//
-//        if (accountS.getBalance().compareTo(amount) < 0) {
-//            System.out.println("Fonds insuffisants sur le compte source !");
-//            return false;
-//        }
-//        Transaction transaction = new Transaction(null,
-//                amount,
-//                Transaction.TransactionType.TRANSFER_OUT,
-//                Transaction.TransactionStatus.PENDING,
-//                Instant.now(),
-//                accountS);
-//
-//        transactionRepository.save(transaction);
-//        return true;
-//
-//    }
+    public boolean transferOut(String nrCptExterne,String numCptClient,BigDecimal amount) {
+        Optional<Account> accountDestination = accountRepository.findByNumCpt(nrCptExterne);
+        Optional<Account> accountSource = accountRepository.findById(numCptClient);
+
+        if (accountSource.isEmpty() || accountDestination.isEmpty()) {
+            System.out.println("Compte introuvable !");
+            return false;
+        }
+
+
+        Account accountS = accountSource.get();
+        Account accountD = accountDestination.get();
+
+        if (accountS.getBalance().compareTo(amount) < 0) {
+            System.out.println("Fonds insuffisants sur le compte source !");
+            return false;
+        }
+        Transaction transaction = new Transaction(null,
+                amount,
+                Transaction.TransactionType.TRANSFER_OUT,
+                Transaction.TransactionStatus.PENDING,
+                Instant.now(),
+                accountS);
+
+        transactionRepository.save(transaction);
+        return true;
+
+    }
 
 }

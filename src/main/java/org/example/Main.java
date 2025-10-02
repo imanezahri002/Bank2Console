@@ -384,18 +384,23 @@ public class Main {
             Account acc=accounts.get(i);
             System.out.println(acc);
         }
+
+        String numCptSource=scanner.nextLine();
+
         System.out.println("veuiller saisir le numéro du compte du destinataire");
         String numCptDestinataire=scanner.nextLine();
 
-        System.out.println("Veuiller saisir l'amaount");
+        System.out.println("Veuiller saisir l'amount");
         BigDecimal amount=scanner.nextBigDecimal();
         scanner.nextLine();
 
+        boolean success=transactionService.transferOut(numCptDestinataire,numCptSource,amount);
 
-
-
-
-
+        if (success) {
+            System.out.println("transfer OUT effectué avec succès !");
+        } else {
+            System.out.println("Échec du transfer.");
+        }
 
     }
 
