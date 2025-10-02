@@ -2,10 +2,7 @@ package org.example;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.UUID;
-import java.util.List;
+import java.util.*;
 
 import org.example.controllers.AuthController;
 import org.example.models.Account;
@@ -119,8 +116,9 @@ public class Main {
             System.out.println("1. Create client");
             System.out.println("2. ajouter compte");
             System.out.println("3. deposer un montant");
-            System.out.println("3. retrait d'un montant");
-            System.out.println("4. virement a un compte interne");
+            System.out.println("4. Retrait un montant");
+            System.out.println("5. transfer IN");
+            System.out.println("6. transfer OUT");
             System.out.println("5. demande de crédit");
             System.out.println("6. demande de cloture");
             System.out.println("7. Déconnexion");
@@ -140,16 +138,19 @@ public class Main {
                 }
 
                 case 3 -> {
-                    System.out.println("Deposer");
+                    System.out.println("Deposer un montant");
                     deposit();
                 }
-                case 4 -> System.out.println("Retrait");
+                case 4 -> System.out.println("Retrait un montant");
 
                 case 5 -> {
                     System.out.println("Transfer IN");
                     transfererIn();
                 }
-                case 6 -> System.out.println("cloture");
+                case 6 -> {
+                    System.out.println("Transfer OUT");
+                    transfererOut();
+                }
                 case 7 -> System.out.println("deconnexion");
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
@@ -358,6 +359,38 @@ public class Main {
         } else {
             System.out.println("Échec du dépôt.");
         }
+
+
+
+
+
+
+    }
+
+    private static void transfererOut(){
+        System.out.println("Transfer OUT ");
+        System.out.println("veuiller entrer votre cin");
+        String cin=scanner.nextLine();
+        Optional<Client> clientOpt=clientService.findByCin(cin);
+
+        if (clientOpt.isEmpty()) {
+            System.out.println("Client introuvable !!");
+            return;
+        }
+        Client client=clientOpt.get();
+        System.out.println("veuiller choisir le compte depuis lequel vous vouler faire virement");
+        List<Account> accounts=accountRepository.findAccountsByClient(client);
+        for(int i=0;i<accounts.size();i++){
+            Account acc=accounts.get(i);
+            System.out.println(acc);
+        }
+        System.out.println("veuiller saisir le numéro du compte du destinataire");
+        String numCptDestinataire=scanner.nextLine();
+
+        System.out.println("Veuiller saisir l'amaount");
+        BigDecimal amount=scanner.nextBigDecimal();
+        scanner.nextLine();
+
 
 
 

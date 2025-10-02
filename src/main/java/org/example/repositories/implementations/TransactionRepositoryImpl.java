@@ -8,12 +8,14 @@ import org.example.repositories.interfaces.TransactionRepository;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.Instant;
 import java.util.UUID;
 
 public class TransactionRepositoryImpl implements TransactionRepository {
 
     private final Connection connection;
     private final AccountRepository accountRepository;
+
 
     public TransactionRepositoryImpl(AccountRepository accountRepository) {
         this.connection = DatabaseConnection.getInstance();
@@ -55,6 +57,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
             if (updateS && updateD) {
                 connection.commit();
+
                 return true;
             } else {
                 connection.rollback();
@@ -77,6 +80,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             }
         }
     }
+
 
 
 

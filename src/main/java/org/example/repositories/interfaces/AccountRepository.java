@@ -12,7 +12,7 @@ public interface AccountRepository {
     List<Account> findAccountsByClient(Client client);
     boolean update(Account account);
     Optional<Account> findById(String accountId);
-
+    Optional<Account> findByNumCpt(String numAccount);
 
 
 }

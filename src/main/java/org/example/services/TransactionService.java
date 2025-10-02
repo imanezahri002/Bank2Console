@@ -58,14 +58,45 @@ public class TransactionService {
             System.out.println("Fonds insuffisants sur le compte source !");
             return false;
         }
+        Transaction transaction=new Transaction(null,
+                amount,
+                Transaction.TransactionType.TRANSFER_IN,
+                Transaction.TransactionStatus.COMPLETED,
+                Instant.now(),
+                accountS);
 
-        accountD.setBalance(accountD.getBalance().add(amount));
-        accountS.setBalance(accountS.getBalance().subtract(amount));
-        accountRepository.update(accountD);
-        accountRepository.update(accountS);
-        return true;
+        transactionRepository.save(transaction);
 
-
+        return transactionRepository.transactionTransferIn(accountS, accountD, amount);
     }
+
+//    public boolean transferOut(String nrCptExterne,String numCptClient,BigDecimal amount) {
+//        Optional<Account> accountSource = accountRepository.findByNumCpt(nrCptExterne);
+//        Optional<Account> accountDestination = accountRepository.findByNumCpt(numCptClient);
+//
+//        if (accountSource.isEmpty() || accountDestination.isEmpty()) {
+//            System.out.println("Compte introuvable !");
+//            return false;
+//        }
+//
+//
+//        Account accountS = accountSource.get();
+//        Account accountD = accountDestination.get();
+//
+//        if (accountS.getBalance().compareTo(amount) < 0) {
+//            System.out.println("Fonds insuffisants sur le compte source !");
+//            return false;
+//        }
+//        Transaction transaction = new Transaction(null,
+//                amount,
+//                Transaction.TransactionType.TRANSFER_OUT,
+//                Transaction.TransactionStatus.PENDING,
+//                Instant.now(),
+//                accountS);
+//
+//        transactionRepository.save(transaction);
+//        return true;
+//
+//    }
 
 }

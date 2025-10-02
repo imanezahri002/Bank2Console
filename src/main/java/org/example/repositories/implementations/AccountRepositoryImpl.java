@@ -144,6 +144,47 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
         return Optional.empty();
     }
+    @Override
+    public Optional<Account> findByNumCpt(String numAccount){
+        String sql = "SELECT a.*, c.id AS client_id, c.firstname, c.lastname, c.email, c.cin, c.phonenumber, c.address, c.salaire " +
+                "FROM \"Account\" a " +
+                "JOIN \"Client\" c ON a.client_id = c.id " +
+                "WHERE a.accountnumber = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, numAccount);
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+                    Client client = new Client(
+                            rs.getObject("client_id", UUID.class),
+                            rs.getString("firstname"),
+                            rs.getString("lastname"),
+                            rs.getString("cin"),
+                            rs.getString("phonenumber"),
+                            rs.getString("address"),
+                            rs.getString("email"),
+                            rs.getDouble("salaire")
+                    );
+
+                    Account account = new Account(
+                            rs.getObject("id", UUID.class),
+                            rs.getString("accountnumber"),
+                            rs.getBigDecimal("balance"),
+                            Account.AccountType.valueOf(rs.getString("type")),
+                            client,
+                            rs.getBoolean("is_active"),
+                            rs.getTimestamp("created_at").toInstant(),
+                            rs.getTimestamp("updated_at").toInstant()
+                    );
+                    return Optional.of(account);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
 
 
 
