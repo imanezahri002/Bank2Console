@@ -35,7 +35,7 @@ public class Main {
     private static final AuthController authController = new AuthController(authService);
     private static final AccountRepository accountRepository=new AccountRepositoryImpl();
     private static final AccountService accountService=new AccountService(accountRepository);
-    private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl();
+    private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl(accountRepository);
     private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository);
 
     public static void main(String[] args) {
@@ -145,7 +145,10 @@ public class Main {
                 }
                 case 4 -> System.out.println("Retrait");
 
-                case 5 -> System.out.println("credit");
+                case 5 -> {
+                    System.out.println("Transfer IN");
+                    transfererIn();
+                }
                 case 6 -> System.out.println("cloture");
                 case 7 -> System.out.println("deconnexion");
                 default -> System.out.println("Choix invalide, essayez encore.");
@@ -312,6 +315,55 @@ public class Main {
         } else {
             System.out.println("Échec du dépôt.");
         }
+    }
+
+    private static void transfererIn(){
+        System.out.print("Veuillez saisir le CIN du client : ");
+        String cin = scanner.nextLine();
+
+        Optional<Client> clientOpt = clientService.findByCin(cin);
+
+        if (clientOpt.isEmpty()) {
+            System.out.println("Client introuvable !!");
+            return;
+        }
+        Client client = clientOpt.get();
+        List<Account> accounts = accountRepository.findAccountsByClient(client);
+
+        if (accounts.isEmpty()) {
+            System.out.println("Ce client n’a aucun compte !");
+            return;
+        }
+
+        System.out.println("Comptes disponibles : ");
+        for (int i = 0; i < accounts.size(); i++) {
+            Account acc = accounts.get(i);
+            System.out.println(acc);
+        }
+
+        System.out.print("Choisissez le numéro du compte source: ");
+        String numCompteSource = scanner.nextLine();
+
+        System.out.print("Choisissez le numéro du compte destination: ");
+        String numCompteDestination = scanner.nextLine();
+
+        System.out.print("Montant à déposer : ");
+        BigDecimal amount = scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        boolean success = transactionService.transferIn(numCompteSource,numCompteDestination ,amount);
+
+        if (success) {
+            System.out.println("Dépôt effectué avec succès !");
+        } else {
+            System.out.println("Échec du dépôt.");
+        }
+
+
+
+
+
+
     }
 
 
