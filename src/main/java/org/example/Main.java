@@ -100,7 +100,7 @@ public class Main {
 
             switch (choice) {
                 case 1 -> userManagementMenu();
-                case 2 -> System.out.println("👉 Affichage de toutes les opérations (à implémenter)");
+                case 2 -> fee_ruleManagementMenu();
                 case 3 -> System.out.println("👉 Modification des rôles (à implémenter)");
                 case 4 -> System.out.println("👉 Suppression de compte utilisateur (à implémenter)");
                 case 5 -> System.out.println("🔒 Déconnexion réussie !");
@@ -238,6 +238,34 @@ public class Main {
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
         } while (choice != 5);
+    }
+    private static void fee_ruleManagementMenu() {
+        int choice;
+        do {
+            System.out.println("\n===== Gestion du fee_rule =====");
+            System.out.println("1. Create fee_rule");
+            System.out.println("2. update fee_rule");
+            System.out.println("3. desactiver fee_rule");
+            System.out.println("4. display fee_rule");
+            System.out.println("5. Exit");
+            choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1 -> {
+                    System.out.println("ajouter une fee_rule");
+                }
+                case 2 -> {
+                    System.out.println("update fee_rule");
+                }
+                case 3 -> {
+                    System.out.println("desactiver fee_rule");
+                }
+                case 4 -> System.out.println("display fee_rule");
+                case 5 -> System.out.println("5. Exit");
+                default -> System.out.println("Choix invalide, essayez encore.");
+            }
+        } while (choice != 5);
+        scanner.close();
     }
     private static void createUser() {
         System.out.println("\n===== CRÉATION D’UN UTILISATEUR =====");
@@ -463,8 +491,6 @@ public class Main {
         }else{
             System.out.println("Echec!");
         }
-
-
     }
 
 
