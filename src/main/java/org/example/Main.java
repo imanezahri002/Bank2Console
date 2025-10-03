@@ -7,6 +7,7 @@ import java.util.*;
 import org.example.controllers.AuthController;
 import org.example.models.Account;
 import org.example.models.Client;
+import org.example.models.Transaction;
 import org.example.models.User;
 import org.example.repositories.implementations.AccountRepositoryImpl;
 import org.example.repositories.implementations.ClientRepositoryImpl;
@@ -72,7 +73,7 @@ public class Main {
 
             switch (user.getRole()) {
                 case ADMIN -> adminMenu();
-                case MANAGER -> System.out.println("➡️ Menu MANAGER ");
+                case MANAGER ->  managerMenu();
                 case TELLER -> tellerMenu();
                 case AUDITOR -> System.out.println("➡️ Menu AUDITOR ");
                 default -> System.out.println("Rôle inconnu.");
@@ -119,9 +120,9 @@ public class Main {
             System.out.println("4. Retrait un montant");
             System.out.println("5. transfer IN");
             System.out.println("6. transfer OUT");
-            System.out.println("5. demande de crédit");
-            System.out.println("6. demande de cloture");
-            System.out.println("7. Déconnexion");
+            System.out.println("7. demande de crédit");
+            System.out.println("8. demande de cloture");
+            System.out.println("9. Déconnexion");
 
             choice = scanner.nextInt();
             scanner.nextLine();
@@ -154,8 +155,60 @@ public class Main {
                 case 7 -> System.out.println("deconnexion");
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
-        } while (choice != 7);
+        } while (choice != 9);
         scanner.close();
+    }
+
+    private static void managerMenu(){
+        int choice;
+        do {
+            System.out.println("\n===== MENU TELLER =====");
+
+            System.out.println("1. Valider Transfer OUT");
+            System.out.println("2. ajouter compte");
+            System.out.println("3. deposer un montant");
+            System.out.println("4. Retrait un montant");
+            System.out.println("5. transfer IN");
+            System.out.println("6. transfer OUT");
+            System.out.println("7. demande de crédit");
+            System.out.println("8. demande de cloture");
+            System.out.println("9. Déconnexion");
+
+            choice = scanner.nextInt();
+            scanner.nextLine();
+
+
+            switch (choice){
+            case 1 -> {
+                System.out.println("Valider Transfer OUT");
+                validerTransferOut();
+            }
+
+            case 2 -> {
+                System.out.println("ajouter un compte");
+
+            }
+
+            case 3 -> {
+                System.out.println("Deposer un montant");
+
+            }
+            case 4 -> System.out.println("Retrait un montant");
+
+            case 5 -> {
+                System.out.println("Transfer IN");
+
+            }
+            case 6 -> {
+                System.out.println("Transfer OUT");
+
+            }
+            case 7 -> System.out.println("deconnexion");
+            default -> System.out.println("Choix invalide, essayez encore.");
+        }
+    } while (choice != 7);
+        scanner.close();
+
     }
 
     private static void userManagementMenu() {
@@ -343,28 +396,22 @@ public class Main {
         }
 
         System.out.print("Choisissez le numéro du compte source: ");
-        String numCompteSource = scanner.nextLine();
+        String idCompteSource = scanner.nextLine();
 
         System.out.print("Choisissez le numéro du compte destination: ");
-        String numCompteDestination = scanner.nextLine();
+        String idCompteDestination = scanner.nextLine();
 
         System.out.print("Montant à déposer : ");
         BigDecimal amount = scanner.nextBigDecimal();
         scanner.nextLine();
 
-        boolean success = transactionService.transferIn(numCompteSource,numCompteDestination ,amount);
+        boolean success = transactionService.transfer(idCompteSource,idCompteDestination ,amount,Transaction.TransactionType.TRANSFER_IN);
 
         if (success) {
             System.out.println("Dépôt effectué avec succès !");
         } else {
             System.out.println("Échec du dépôt.");
         }
-
-
-
-
-
-
     }
 
     private static void transfererOut(){
@@ -372,7 +419,6 @@ public class Main {
         System.out.println("veuiller entrer votre cin");
         String cin=scanner.nextLine();
         Optional<Client> clientOpt=clientService.findByCin(cin);
-
         if (clientOpt.isEmpty()) {
             System.out.println("Client introuvable !!");
             return;
@@ -384,23 +430,40 @@ public class Main {
             Account acc=accounts.get(i);
             System.out.println(acc);
         }
-
         String numCptSource=scanner.nextLine();
-
         System.out.println("veuiller saisir le numéro du compte du destinataire");
         String numCptDestinataire=scanner.nextLine();
-
+        Optional<Account> idCptDestinataire=accountRepository.findByNumCpt(numCptDestinataire);
+        UUID idCptDes=idCptDestinataire.get().getId();
+        String idCompteDes=String.valueOf(idCptDes);
         System.out.println("Veuiller saisir l'amount");
         BigDecimal amount=scanner.nextBigDecimal();
         scanner.nextLine();
-
-        boolean success=transactionService.transferOut(numCptDestinataire,numCptSource,amount);
-
+        boolean success=transactionService.transfer(numCptSource,idCompteDes,amount,Transaction.TransactionType.TRANSFER_OUT);
         if (success) {
             System.out.println("transfer OUT effectué avec succès !");
         } else {
             System.out.println("Échec du transfer.");
         }
+
+    }
+
+    private static void validerTransferOut(){
+        System.out.println("Voici les transfer out a valider:");
+        List<Transaction> transactions=transactionRepository.findAllTransferOut();
+        for(int i=0;i<transactions.size();i++){
+            Transaction transaction=transactions.get(i);
+            System.out.println(transaction);
+        }
+        System.out.println("Veuiller saisir l'id du transaction a valider");
+        String transactionId=scanner.nextLine();
+        boolean success=transactionService.validertransferOut(transactionId);
+        if(success){
+            System.out.println("la transaction OUT est validée");
+        }else{
+            System.out.println("Echec!");
+        }
+
 
     }
 

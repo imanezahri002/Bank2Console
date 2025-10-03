@@ -41,9 +41,9 @@ public class TransactionService {
         return accountRepository.update(account);
     }
 
-    public boolean transferIn(String numCompteSource,String numCompteDestination ,BigDecimal amount) {
-        Optional<Account> accountSource = accountRepository.findById(numCompteSource);
-        Optional<Account> accountDestination = accountRepository.findById(numCompteDestination);
+    public boolean transfer(String idCompteSource,String idCompteDestination ,BigDecimal amount,Transaction.TransactionType type) {
+        Optional<Account> accountSource = accountRepository.findById(idCompteSource);
+        Optional<Account> accountDestination = accountRepository.findById(idCompteDestination);
 
         if (accountSource.isEmpty() || accountDestination.isEmpty()) {
             System.out.println("Compte introuvable !");
@@ -58,10 +58,18 @@ public class TransactionService {
             System.out.println("Fonds insuffisants sur le compte source !");
             return false;
         }
+        Transaction.TransactionStatus status;
+
+        if (type == Transaction.TransactionType.TRANSFER_OUT) {
+            status = Transaction.TransactionStatus.PENDING;
+        } else {
+            status = Transaction.TransactionStatus.COMPLETED;
+        }
+
         Transaction transaction=new Transaction(null,
                 amount,
-                Transaction.TransactionType.TRANSFER_IN,
-                Transaction.TransactionStatus.COMPLETED,
+                type,
+                status,
                 Instant.now(),
                 accountS);
 
@@ -70,33 +78,41 @@ public class TransactionService {
         return transactionRepository.transactionTransferIn(accountS, accountD, amount);
     }
 
-    public boolean transferOut(String nrCptExterne,String numCptClient,BigDecimal amount) {
-        Optional<Account> accountDestination = accountRepository.findByNumCpt(nrCptExterne);
-        Optional<Account> accountSource = accountRepository.findById(numCptClient);
+//    public boolean transferOut(String nrCptExterne,String numCptClient,BigDecimal amount) {
+//        Optional<Account> accountDestination = accountRepository.findByNumCpt(nrCptExterne);
+//        Optional<Account> accountSource = accountRepository.findById(numCptClient);
+//
+//        if (accountSource.isEmpty() || accountDestination.isEmpty()) {
+//            System.out.println("Compte introuvable !");
+//            return false;
+//        }
+//
+//
+//        Account accountS = accountSource.get();
+//        Account accountD = accountDestination.get();
+//
+//        if (accountS.getBalance().compareTo(amount) < 0) {
+//            System.out.println("Fonds insuffisants sur le compte source !");
+//            return false;
+//        }
+//        Transaction transaction = new Transaction(null,
+//                amount,
+//                Transaction.TransactionType.TRANSFER_OUT,
+//                Transaction.TransactionStatus.PENDING,
+//                Instant.now(),
+//                accountS);
+//
+//        transactionRepository.save(transaction);
+//        return true;
+//
+//    }
 
-        if (accountSource.isEmpty() || accountDestination.isEmpty()) {
-            System.out.println("Compte introuvable !");
+    public boolean validertransferOut(String transactionId){
+        Optional<Transaction> transaction =transactionRepository.findById(transactionId);
+        if ( transaction.isEmpty()) {
+            System.out.println("Transaction introuvable !");
             return false;
         }
-
-
-        Account accountS = accountSource.get();
-        Account accountD = accountDestination.get();
-
-        if (accountS.getBalance().compareTo(amount) < 0) {
-            System.out.println("Fonds insuffisants sur le compte source !");
-            return false;
-        }
-        Transaction transaction = new Transaction(null,
-                amount,
-                Transaction.TransactionType.TRANSFER_OUT,
-                Transaction.TransactionStatus.PENDING,
-                Instant.now(),
-                accountS);
-
-        transactionRepository.save(transaction);
-        return true;
-
+        return transactionRepository.validate(transactionId);
     }
-
 }

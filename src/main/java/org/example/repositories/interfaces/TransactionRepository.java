@@ -5,6 +5,7 @@ import org.example.models.Transaction;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository {
@@ -15,5 +16,7 @@ public interface TransactionRepository {
 
 
 //    Transaction findById(UUID id);
-//    List<Transaction> findAll();
+    List<Transaction> findAllTransferOut();
+    Optional<Transaction> findById(String transactionId);
+    boolean validate(String transactionId);
 }

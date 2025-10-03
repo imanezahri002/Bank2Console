@@ -9,6 +9,9 @@ import org.example.repositories.interfaces.TransactionRepository;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class TransactionRepositoryImpl implements TransactionRepository {
@@ -81,7 +84,83 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         }
     }
 
+    @Override
+    public List<Transaction>  findAllTransferOut(){
+        List<Transaction> transactions = new ArrayList<>();
+        String sql="SELECT * FROM \"Transaction\" WHERE type=? AND status=?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setObject(1, Transaction.TransactionType.TRANSFER_OUT.name(),java.sql.Types.OTHER);
+            stmt.setObject(2, Transaction.TransactionStatus.PENDING.name(),java.sql.Types.OTHER);
 
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Transaction transaction = new Transaction(
+                            rs.getObject("id", UUID.class),
+                            rs.getBigDecimal("amount"),
+                            Transaction.TransactionType.valueOf(rs.getString("type")),
+                            Transaction.TransactionStatus.valueOf(rs.getString("status")),
+                            rs.getTimestamp("created_at").toInstant(),
+                            accountRepository.findById(rs.getString("account_id")).orElse(null)
+                    );
+                    transactions.add(transaction);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return transactions;
+
+
+    }
+
+    @Override
+    public Optional<Transaction> findById(String transactionId){
+        String sql="SELECT * FROM \"Transaction\" WHERE id=?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setObject(1, UUID.fromString(transactionId)); // si id est bien un UUID
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Transaction transaction = new Transaction(
+                            (UUID) rs.getObject("id"),
+                            rs.getBigDecimal("amount"),
+                            Transaction.TransactionType.valueOf(rs.getString("type")),
+                            Transaction.TransactionStatus.valueOf(rs.getString("status")),
+                            rs.getTimestamp("created_at").toInstant(),
+                            accountRepository.findById(rs.getString("account_id")).orElse(null)
+                    );
+
+                    return Optional.of(transaction);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+
+    }
+
+
+    @Override
+    public boolean validate(String transactionId){
+        String sql = "UPDATE \"Transaction\" SET status = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setObject(1, Transaction.TransactionStatus.COMPLETED.name(),java.sql.Types.OTHER); // "COMPLETED"
+            stmt.setObject(2, UUID.fromString(transactionId)); // si ton id est de type UUID
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 

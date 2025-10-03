@@ -87,5 +87,17 @@ public class Transaction {
         this.account = account;
     }
 
+    @Override
+    public String toString() {
+        return "Transaction :" +
+                "\nid=" + id +
+                "\n, amount=" + amount +
+                "\n, type=" + type +
+                "\n, status=" + status +
+                "\n, created_at=" + created_at +
+                "\n, account=" + account.getId()+
+                '\n';
+    }
+
 }
 
