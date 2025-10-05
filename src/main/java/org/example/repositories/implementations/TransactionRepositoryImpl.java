@@ -30,10 +30,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         String sql = "INSERT INTO \"Transaction\" (amount, type, status, created_at, account_id) " +
                 "VALUES ( ?, ?, ?, ?, ?)";
 
-        try (
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBigDecimal(1, transaction.getAmount());
             stmt.setObject(2, transaction.getType().name(), java.sql.Types.OTHER);
             stmt.setObject(3, transaction.getStatus().name(),java.sql.Types.OTHER);

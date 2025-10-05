@@ -1,26 +1,15 @@
 package org.example;
 
 import java.math.BigDecimal;
+import java.sql.SQLOutput;
 import java.time.Instant;
 import java.util.*;
 
 import org.example.controllers.AuthController;
-import org.example.models.Account;
-import org.example.models.Client;
-import org.example.models.Transaction;
-import org.example.models.User;
-import org.example.repositories.implementations.AccountRepositoryImpl;
-import org.example.repositories.implementations.ClientRepositoryImpl;
-import org.example.repositories.implementations.TransactionRepositoryImpl;
-import org.example.repositories.interfaces.AccountRepository;
-import org.example.repositories.interfaces.ClientRepository;
-import org.example.repositories.interfaces.TransactionRepository;
-import org.example.repositories.interfaces.UserRepository;
-import org.example.repositories.implementations.UserRepositoryImpl;
-import org.example.services.AccountService;
-import org.example.services.AuthService;
-import org.example.services.ClientService;
-import org.example.services.TransactionService;
+import org.example.models.*;
+import org.example.repositories.implementations.*;
+import org.example.repositories.interfaces.*;
+import org.example.services.*;
 
 
 public class Main {
@@ -29,12 +18,14 @@ public class Main {
     private static final UserRepository userRepository = new UserRepositoryImpl();
     private static final ClientRepository clientRepository=new ClientRepositoryImpl();
     private static final ClientService clientService=new ClientService(clientRepository);
-    private static final AuthService authService = new AuthService(userRepository,clientRepository); // instance unique
+    private static final AuthService authService = new AuthService(userRepository,clientRepository);
     private static final AuthController authController = new AuthController(authService);
     private static final AccountRepository accountRepository=new AccountRepositoryImpl();
     private static final AccountService accountService=new AccountService(accountRepository);
     private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl(accountRepository);
     private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository);
+    private static final FeeRuleRepository feeRoleRepository=new FeeRuleRepositoryImpl();
+    private static final FeeRuleService feeRuleService=new FeeRuleService(feeRoleRepository);
 
     public static void main(String[] args) {
         int choice;
@@ -89,7 +80,7 @@ public class Main {
         do {
             System.out.println("\n===== MENU ADMIN (Super utilisateur) =====");
             System.out.println("1. Gérer les utilisateurs");
-            System.out.println("2. Voir toutes les opérations");
+            System.out.println("2. Gérer les fee_rule");
             System.out.println("3. Modifier les rôles");
             System.out.println("4. Supprimer un compte utilisateur");
             System.out.println("5. Déconnexion");
@@ -120,7 +111,7 @@ public class Main {
             System.out.println("4. Retrait un montant");
             System.out.println("5. transfer IN");
             System.out.println("6. transfer OUT");
-            System.out.println("7. demande de crédit");
+            System.out.println("7. passer un virement Externe");
             System.out.println("8. demande de cloture");
             System.out.println("9. Déconnexion");
 
@@ -152,7 +143,11 @@ public class Main {
                     System.out.println("Transfer OUT");
                     transfererOut();
                 }
-                case 7 -> System.out.println("deconnexion");
+                case 7 ->{
+                    System.out.println("Virement Externe");
+                    transferExterne();
+                }
+                case 8 -> System.out.println("deconnexion");
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
         } while (choice != 9);
@@ -253,6 +248,7 @@ public class Main {
             switch (choice) {
                 case 1 -> {
                     System.out.println("ajouter une fee_rule");
+                    addFeeRule();
                 }
                 case 2 -> {
                     System.out.println("update fee_rule");
@@ -491,6 +487,37 @@ public class Main {
         }else{
             System.out.println("Echec!");
         }
+    }
+
+    private static void addFeeRule(){
+        System.out.println("=== Ajout d'une Fee Rule ===");
+        System.out.println("Choisissez le type d'opération (CREDIT / TRANSACTION_EXTERNE) :");
+        FeeRule.OperationType operationTypeInput = FeeRule.OperationType.valueOf(scanner.nextLine().toUpperCase());
+
+        System.out.println("Choisissez le mode de frais (FIXE / PERCENT) :");
+        FeeRule.FeeMode modeInput = FeeRule.FeeMode.valueOf(scanner.nextLine().toUpperCase());
+
+        System.out.println("Entrer le minimum amount");
+        BigDecimal minAmountInput = scanner.nextBigDecimal();
+        scanner.nextLine();
+        System.out.println("Entrer le maximum amount");
+        BigDecimal maxAmountInput = scanner.nextBigDecimal();
+        scanner.nextLine();
+        System.out.println("Entrer currency");
+        String currencyInput = scanner.nextLine();
+        System.out.print("Entrez la valeur du frais : ");
+        BigDecimal value = scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        FeeRule feeRule=new FeeRule(null,operationTypeInput,modeInput,minAmountInput,maxAmountInput,value,Instant.now(),true,currencyInput);
+        boolean success=feeRuleService.addFeeRule(feeRule);
+        if (success){
+            System.out.println("Fee_Rule créé avec succès !");
+        }else System.out.println("Erreur lors de la création du Fee_Rule.");
+    }
+
+    private static void transferExterne(){
+
     }
 
 
