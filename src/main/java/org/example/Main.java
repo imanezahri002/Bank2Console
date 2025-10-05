@@ -22,10 +22,11 @@ public class Main {
     private static final AuthController authController = new AuthController(authService);
     private static final AccountRepository accountRepository=new AccountRepositoryImpl();
     private static final AccountService accountService=new AccountService(accountRepository);
-    private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl(accountRepository);
-    private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository);
     private static final FeeRuleRepository feeRoleRepository=new FeeRuleRepositoryImpl();
+    private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl(accountRepository,feeRoleRepository);
     private static final FeeRuleService feeRuleService=new FeeRuleService(feeRoleRepository);
+    private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository,feeRoleRepository);
+
 
     public static void main(String[] args) {
         int choice;
@@ -160,7 +161,7 @@ public class Main {
             System.out.println("\n===== MENU TELLER =====");
 
             System.out.println("1. Valider Transfer OUT");
-            System.out.println("2. ajouter compte");
+            System.out.println("2. Valider Virement Externe");
             System.out.println("3. deposer un montant");
             System.out.println("4. Retrait un montant");
             System.out.println("5. transfer IN");
@@ -180,8 +181,8 @@ public class Main {
             }
 
             case 2 -> {
-                System.out.println("ajouter un compte");
-
+                System.out.println("Valider virement Externe");
+                validerTransferEtranger();
             }
 
             case 3 -> {
@@ -474,7 +475,9 @@ public class Main {
 
     private static void validerTransferOut(){
         System.out.println("Voici les transfer out a valider:");
+
         List<Transaction> transactions=transactionRepository.findAllTransferOut();
+
         for(int i=0;i<transactions.size();i++){
             Transaction transaction=transactions.get(i);
             System.out.println(transaction);
@@ -517,7 +520,65 @@ public class Main {
     }
 
     private static void transferExterne(){
+        System.out.print("Veuillez saisir le CIN du client : ");
+        String cin = scanner.nextLine();
 
+        Optional<Client> clientOpt = clientService.findByCin(cin);
+
+        if (clientOpt.isEmpty()) {
+            System.out.println("Client introuvable !!");
+            return;
+        }
+        Client client = clientOpt.get();
+        List<Account> accounts = accountRepository.findAccountsByClient(client);
+
+        if (accounts.isEmpty()) {
+            System.out.println("Ce client n’a aucun compte !");
+            return;
+        }
+
+        System.out.println("Comptes disponibles : ");
+        for (int i = 0; i < accounts.size(); i++) {
+            Account acc = accounts.get(i);
+            System.out.println(acc);
+        }
+
+        System.out.print("Choisissez l'id du compte Source: ");
+        String idCompteSource = scanner.nextLine();
+
+        System.out.print("Choisissez le numéro du compte destination: ");
+        String idCompteDestination = scanner.nextLine();
+
+        System.out.print("Montant à déposer : ");
+        BigDecimal amount = scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        boolean success = transactionService.transferExterne(idCompteSource,amount,Transaction.TransactionType.ETRANGER);
+
+        if (success) {
+            System.out.println("Dépôt effectué avec succès !");
+        } else {
+            System.out.println("Échec du dépôt.");
+        }
+    }
+
+    private static void validerTransferEtranger(){
+        System.out.println("Voici les transfer out a valider:");
+
+        List<Transaction> transactions=transactionRepository.findAllTransferExterne();
+
+        for(int i=0;i<transactions.size();i++){
+            Transaction transaction=transactions.get(i);
+            System.out.println(transaction);
+        }
+        System.out.println("Veuiller saisir l'id du transaction a valider");
+        String transactionId=scanner.nextLine();
+        boolean success=transactionService.validerTransactionExterne(transactionId);
+        if(success){
+            System.out.println("la transaction OUT est validée");
+        }else{
+            System.out.println("Echec!");
+        }
     }
 
 

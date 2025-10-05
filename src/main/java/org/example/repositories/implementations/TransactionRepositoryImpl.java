@@ -2,8 +2,10 @@ package org.example.repositories.implementations;
 
 import org.example.database.DatabaseConnection;
 import org.example.models.Account;
+import org.example.models.FeeRule;
 import org.example.models.Transaction;
 import org.example.repositories.interfaces.AccountRepository;
+import org.example.repositories.interfaces.FeeRuleRepository;
 import org.example.repositories.interfaces.TransactionRepository;
 
 import java.math.BigDecimal;
@@ -18,17 +20,19 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     private final Connection connection;
     private final AccountRepository accountRepository;
+    private final FeeRuleRepository feeRuleRepository;
 
 
-    public TransactionRepositoryImpl(AccountRepository accountRepository) {
+    public TransactionRepositoryImpl(AccountRepository accountRepository,FeeRuleRepository feeRuleRepository) {
         this.connection = DatabaseConnection.getInstance();
         this.accountRepository=accountRepository;
+        this.feeRuleRepository=feeRuleRepository;
     }
 
     @Override
     public boolean save(Transaction transaction) {
-        String sql = "INSERT INTO \"Transaction\" (amount, type, status, created_at, account_id) " +
-                "VALUES ( ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO \"Transaction\" (amount, type, status, created_at, account_id,fee_rule_id,total_amount) " +
+                "VALUES ( ?, ?, ?, ?, ?,?,?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBigDecimal(1, transaction.getAmount());
@@ -36,6 +40,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             stmt.setObject(3, transaction.getStatus().name(),java.sql.Types.OTHER);
             stmt.setTimestamp(4, Timestamp.from(transaction.getCreated_at()));
             stmt.setObject(5, transaction.getAccount().getId());
+            stmt.setObject(6, transaction.getFeeRule() != null ? transaction.getFeeRule().getId() : null);
+            stmt.setBigDecimal(7,transaction.getTotalAmount());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -81,6 +87,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         }
     }
 
+
     @Override
     public List<Transaction>  findAllTransferOut(){
         List<Transaction> transactions = new ArrayList<>();
@@ -91,13 +98,17 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+
                     Transaction transaction = new Transaction(
                             rs.getObject("id", UUID.class),
                             rs.getBigDecimal("amount"),
                             Transaction.TransactionType.valueOf(rs.getString("type")),
                             Transaction.TransactionStatus.valueOf(rs.getString("status")),
                             rs.getTimestamp("created_at").toInstant(),
-                            accountRepository.findById(rs.getString("account_id")).orElse(null)
+                            accountRepository.findById(rs.getString("account_id")).orElse(null),
+                            rs.getBigDecimal("total_amount"),
+                            feeRuleRepository.findById(rs.getObject("fee_rule_id",UUID.class)).orElse(null)
+
                     );
                     transactions.add(transaction);
                 }
@@ -126,7 +137,10 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             Transaction.TransactionType.valueOf(rs.getString("type")),
                             Transaction.TransactionStatus.valueOf(rs.getString("status")),
                             rs.getTimestamp("created_at").toInstant(),
-                            accountRepository.findById(rs.getString("account_id")).orElse(null)
+                            accountRepository.findById(rs.getString("account_id")).orElse(null),
+                            rs.getBigDecimal("total_amount"),
+                            feeRuleRepository.findById(rs.getObject("fee_rule_id",UUID.class)).orElse(null)
+
                     );
 
                     return Optional.of(transaction);
@@ -147,8 +161,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         String sql = "UPDATE \"Transaction\" SET status = ? WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setObject(1, Transaction.TransactionStatus.COMPLETED.name(),java.sql.Types.OTHER); // "COMPLETED"
-            stmt.setObject(2, UUID.fromString(transactionId)); // si ton id est de type UUID
+            stmt.setObject(1, Transaction.TransactionStatus.COMPLETED.name(),java.sql.Types.OTHER);
+            stmt.setObject(2, UUID.fromString(transactionId));
 
             int rowsUpdated = stmt.executeUpdate();
             return rowsUpdated > 0;
@@ -159,6 +173,38 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         }
     }
 
+    public List<Transaction>findAllTransferExterne(){
+        List<Transaction> transactions = new ArrayList<>();
+        String sql="SELECT * FROM \"Transaction\" WHERE type=? AND status=?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setObject(1, Transaction.TransactionType.ETRANGER.name(),java.sql.Types.OTHER);
+            stmt.setObject(2, Transaction.TransactionStatus.PENDING.name(),java.sql.Types.OTHER);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Transaction transaction = new Transaction(
+                            rs.getObject("id", UUID.class),
+                            rs.getBigDecimal("amount"),
+                            Transaction.TransactionType.valueOf(rs.getString("type")),
+                            Transaction.TransactionStatus.valueOf(rs.getString("status")),
+                            rs.getTimestamp("created_at").toInstant(),
+                            accountRepository.findById(rs.getString("account_id")).orElse(null),
+                            rs.getBigDecimal("total_amount"),
+                            feeRuleRepository.findById(rs.getObject("fee_rule_id",UUID.class)).orElse(null)
+
+                    );
+                    transactions.add(transaction);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return transactions;
+
+
+    }
 
 
 }

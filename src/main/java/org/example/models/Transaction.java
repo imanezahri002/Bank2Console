@@ -8,9 +8,14 @@ import java.util.UUID;
 
 public class Transaction {
     private UUID id;
+    private BigDecimal totalAmount;
     private BigDecimal amount;
     private TransactionType type;
     private TransactionStatus status;
+    private FeeRule feeRule;
+
+
+
     private Instant created_at;
     private Account account;
 
@@ -30,13 +35,23 @@ public class Transaction {
         FAILED
     }
 
-    public Transaction(UUID id, BigDecimal amount, TransactionType type, TransactionStatus status, Instant created_at, Account account) {
+    public Transaction(UUID id, BigDecimal amount, TransactionType type, TransactionStatus status, Instant created_at, Account account,BigDecimal totalAmount,FeeRule feeRule) {
         this.id = id;
         this.amount = amount;
         this.type = type;
         this.status = status;
         this.created_at = created_at;
         this.account = account;
+        this.totalAmount=totalAmount;
+        this.feeRule=feeRule;
+    }
+
+    public FeeRule getFeeRule() {
+        return feeRule;
+    }
+
+    public void setFeeRule(FeeRule feeRule) {
+        this.feeRule = feeRule;
     }
 
     public UUID getId() {
@@ -82,7 +97,13 @@ public class Transaction {
     public Account getAccount() {
         return account;
     }
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
 
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
     public void setAccount(Account account) {
         this.account = account;
     }

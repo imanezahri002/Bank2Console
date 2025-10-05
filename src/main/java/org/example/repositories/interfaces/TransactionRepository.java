@@ -11,12 +11,9 @@ import java.util.UUID;
 public interface TransactionRepository {
 
     boolean save(Transaction transaction);
-
     boolean transactionTransferIn(Account accountS, Account accountD, BigDecimal amount);
-
-
-//    Transaction findById(UUID id);
     List<Transaction> findAllTransferOut();
     Optional<Transaction> findById(String transactionId);
     boolean validate(String transactionId);
+    List<Transaction>findAllTransferExterne();
 }
