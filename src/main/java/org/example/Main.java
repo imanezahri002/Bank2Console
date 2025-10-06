@@ -588,16 +588,34 @@ public class Main {
 
     private static void addCredit(){
         System.out.println("=== Création d'un crédit ===");
+        System.out.print("Veuillez saisir le CIN du client : ");
+        String cin = scanner.nextLine();
 
+        Optional<Client> clientOpt = clientService.findByCin(cin);
+
+        if (clientOpt.isEmpty()) {
+            System.out.println("Client introuvable !!");
+            return;
+        }
+        Client client = clientOpt.get();
+        List<Account> accounts = accountRepository.findAccountsByClient(client);
+
+        if (accounts.isEmpty()) {
+            System.out.println("Ce client n’a aucun compte !");
+            return;
+        }
+        Optional<Account> creditAccountOpt = accounts.stream()
+                .filter(acc -> acc.getType() == Account.AccountType.CREDIT)
+                .findFirst();
+
+        if (creditAccountOpt.isEmpty()) {
+            System.out.println("Aucun compte de type CREDIT trouvé pour ce client !");
+            return;
+        }
+        Account creditAccount=creditAccountOpt.get();
 
         System.out.println("Veuillez saisir l'ID du compte client :");
         String accountIdInput = scanner.nextLine();
-        Account account = accountRepository.findById(accountIdInput).orElse(null);
-        if (account == null) {
-            System.out.println("Compte introuvable !");
-            return;
-        }
-
 
         System.out.println("Entrez le montant du crédit :");
         BigDecimal amount = scanner.nextBigDecimal();
@@ -617,7 +635,7 @@ public class Main {
                 duree,
                 Credit.CreditStatus.ACTIVE,
                 feeRule,
-                account,
+                creditAccount,
                 Instant.now(),
                 Instant.now()
         );
