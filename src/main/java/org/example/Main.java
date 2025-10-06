@@ -26,7 +26,8 @@ public class Main {
     private static final TransactionRepository transactionRepository=new TransactionRepositoryImpl(accountRepository,feeRoleRepository);
     private static final FeeRuleService feeRuleService=new FeeRuleService(feeRoleRepository);
     private static final TransactionService transactionService=new TransactionService(transactionRepository,accountRepository,feeRoleRepository);
-
+    private static final CreditRepository creditRepository=new CreditRepositoryImpl(accountRepository,feeRoleRepository);
+    private static final CreditService creditService=new CreditService(creditRepository,accountRepository,feeRoleRepository);
 
     public static void main(String[] args) {
         int choice;
@@ -113,7 +114,7 @@ public class Main {
             System.out.println("5. transfer IN");
             System.out.println("6. transfer OUT");
             System.out.println("7. passer un virement Externe");
-            System.out.println("8. demande de cloture");
+            System.out.println("8. demande de credit");
             System.out.println("9. Déconnexion");
 
             choice = scanner.nextInt();
@@ -148,7 +149,11 @@ public class Main {
                     System.out.println("Virement Externe");
                     transferExterne();
                 }
-                case 8 -> System.out.println("deconnexion");
+                case 8 ->{
+                    System.out.println("Ajouter un Credit");
+                    addCredit();
+                }
+                case 9 -> System.out.println("Deconnexion");
                 default -> System.out.println("Choix invalide, essayez encore.");
             }
         } while (choice != 9);
@@ -579,6 +584,51 @@ public class Main {
         }else{
             System.out.println("Echec!");
         }
+    }
+
+    private static void addCredit(){
+        System.out.println("=== Création d'un crédit ===");
+
+
+        System.out.println("Veuillez saisir l'ID du compte client :");
+        String accountIdInput = scanner.nextLine();
+        Account account = accountRepository.findById(accountIdInput).orElse(null);
+        if (account == null) {
+            System.out.println("Compte introuvable !");
+            return;
+        }
+
+
+        System.out.println("Entrez le montant du crédit :");
+        BigDecimal amount = scanner.nextBigDecimal();
+        scanner.nextLine();
+
+        Optional<FeeRule> feeRuleOp=feeRoleRepository.findByAmount(amount, FeeRule.OperationType.CREDIT);
+        FeeRule feeRule=feeRuleOp.get();
+
+
+        System.out.println("Entrez la durée du crédit (en mois) :");
+        int duree = scanner.nextInt();
+        scanner.nextLine();
+
+        Credit credit = new Credit(
+                null,
+                amount,
+                duree,
+                Credit.CreditStatus.ACTIVE,
+                feeRule,
+                account,
+                Instant.now(),
+                Instant.now()
+        );
+        boolean success = creditService.addCredit(credit);
+        if (success) {
+            System.out.println("Crédit créé avec succès !");
+        } else {
+            System.out.println("Erreur lors de la création du crédit.");
+        }
+
+
     }
 
 
