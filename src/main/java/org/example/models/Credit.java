@@ -15,17 +15,19 @@ public class Credit {
     private Account account;
     private Instant createdAt;
     private Instant updatedAt;
+    private BigDecimal mensualite;
 
 
     public enum CreditStatus {
         ACTIVE,
         LATE,
-        CLOSED
+        CLOSED,
+        PENDING
     }
 
 
     public Credit(UUID id, BigDecimal amount, int duree, CreditStatus status,
-                  FeeRule feeRule, Account account, Instant createdAt, Instant updatedAt) {
+                  FeeRule feeRule, Account account, Instant createdAt, Instant updatedAt,BigDecimal mensualite) {
         this.id = id;
         this.amount = amount;
         this.duree = duree;
@@ -34,11 +36,20 @@ public class Credit {
         this.account = account;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.mensualite=mensualite;
     }
 
     // Getters et setters
     public UUID getId() {
         return id;
+    }
+
+    public BigDecimal getMensualite() {
+        return mensualite;
+    }
+
+    public void setMensualite(BigDecimal mensualite) {
+        this.mensualite = mensualite;
     }
 
     public void setId(UUID id) {
@@ -99,6 +110,21 @@ public class Credit {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Credit{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", duree=" + duree +
+                ", status=" + status +
+                ", feeRule=" + feeRule +
+                ", account=" + account +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", mensualite=" + mensualite +
+                '}'+"\n";
     }
 }
 

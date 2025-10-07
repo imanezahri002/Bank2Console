@@ -163,17 +163,12 @@ public class Main {
     private static void managerMenu(){
         int choice;
         do {
-            System.out.println("\n===== MENU TELLER =====");
+            System.out.println("\n===== MENU MANAGER =====");
 
             System.out.println("1. Valider Transfer OUT");
             System.out.println("2. Valider Virement Externe");
-            System.out.println("3. deposer un montant");
-            System.out.println("4. Retrait un montant");
-            System.out.println("5. transfer IN");
-            System.out.println("6. transfer OUT");
-            System.out.println("7. demande de crédit");
-            System.out.println("8. demande de cloture");
-            System.out.println("9. Déconnexion");
+            System.out.println("3. Valider Credit");
+            System.out.println("4. Déconnexion");
 
             choice = scanner.nextInt();
             scanner.nextLine();
@@ -191,23 +186,13 @@ public class Main {
             }
 
             case 3 -> {
-                System.out.println("Deposer un montant");
-
+                System.out.println("Valider Credit");
+                validerCredit();
             }
-            case 4 -> System.out.println("Retrait un montant");
-
-            case 5 -> {
-                System.out.println("Transfer IN");
-
-            }
-            case 6 -> {
-                System.out.println("Transfer OUT");
-
-            }
-            case 7 -> System.out.println("deconnexion");
+            case 4 -> System.out.println("deconnexion");
             default -> System.out.println("Choix invalide, essayez encore.");
         }
-    } while (choice != 7);
+    } while (choice != 4);
         scanner.close();
 
     }
@@ -613,10 +598,6 @@ public class Main {
             return;
         }
         Account creditAccount=creditAccountOpt.get();
-
-        System.out.println("Veuillez saisir l'ID du compte client :");
-        String accountIdInput = scanner.nextLine();
-
         System.out.println("Entrez le montant du crédit :");
         BigDecimal amount = scanner.nextBigDecimal();
         scanner.nextLine();
@@ -633,11 +614,12 @@ public class Main {
                 null,
                 amount,
                 duree,
-                Credit.CreditStatus.ACTIVE,
+                Credit.CreditStatus.PENDING,
                 feeRule,
                 creditAccount,
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                null
         );
         boolean success = creditService.addCredit(credit);
         if (success) {
@@ -648,6 +630,28 @@ public class Main {
 
 
     }
+
+    private static void validerCredit(){
+        System.out.println("Voici les credits a valider:");
+
+        List<Credit> credits=creditRepository.findAllPendingCredits();
+
+        for(int i=0;i<credits.size();i++){
+            Credit credit=credits.get(i);
+            System.out.println(credit);
+        }
+        System.out.println("Veuiller saisir l'id du credit a valider");
+        String creditId=scanner.nextLine();
+        UUID creditIdUuid=UUID.fromString(creditId);
+        boolean success=creditService.validerCredit(creditIdUuid);
+        if(success){
+            System.out.println("le credit est validé");
+        }else{
+            System.out.println("Echec!");
+        }
+    }
+
+
 
 
 }
