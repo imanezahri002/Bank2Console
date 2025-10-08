@@ -76,7 +76,6 @@ public class Main {
         }
     }
 
-
     private static void adminMenu() {
         int choice;
         do {
@@ -135,7 +134,10 @@ public class Main {
                     System.out.println("Deposer un montant");
                     deposit();
                 }
-                case 4 -> System.out.println("Retrait un montant");
+                case 4 -> {
+                    System.out.println("Retrait un montant");
+                    retrait();
+                }
 
                 case 5 -> {
                     System.out.println("Transfer IN");
@@ -370,7 +372,7 @@ public class Main {
             System.out.println(acc);
         }
 
-        System.out.print("Choisissez le numéro du compte : ");
+        System.out.print("Choisissez l'id du compte : ");
         String numCompte = scanner.nextLine();
 
         System.out.print("Montant à déposer : ");
@@ -383,6 +385,37 @@ public class Main {
             System.out.println("Dépôt effectué avec succès !");
         } else {
             System.out.println("Échec du dépôt.");
+        }
+    }
+    private static void retrait(){
+        System.out.println("Veuillez saisir le cin du client:");
+        String cin=scanner.nextLine();
+        Optional<Client>clientOpt=clientRepository.findByCin(cin);
+        if(clientOpt.isEmpty()){
+            System.out.println("Vous etes pas un client");
+            return;
+        }
+        Client client=clientOpt.get();
+        List<Account> accounts=accountRepository.findAccountsByClient(client);
+        if(accounts.isEmpty()){
+            System.out.println("ce client n'a pas d'account");
+            return;
+        }
+        System.out.println("Veuillez choisir le compte pour faire retrait\n");
+        for(int i=0;i<accounts.size();i++){
+            Account acc=accounts.get(i);
+            System.out.println(acc);
+        }
+        System.out.println("Choix:");
+        String accountId=scanner.nextLine();
+        System.out.println("Veuillez Saisir le montant:");
+        BigDecimal amount=scanner.nextBigDecimal();
+        scanner.nextLine();
+        boolean sucess=transactionService.retrait(accountId,amount);
+        if(sucess){
+            System.out.println("le retrait effectué avec succes");
+        }else {
+            System.out.println("Echec!");
         }
     }
 
@@ -650,6 +683,8 @@ public class Main {
             System.out.println("Echec!");
         }
     }
+
+
 
 
 

@@ -9,4 +9,5 @@ public interface ClientRepository {
     boolean createClient(Client client);
     Optional<Client> findByCin(String cin);
 
+
 }

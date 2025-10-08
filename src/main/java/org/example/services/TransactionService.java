@@ -44,6 +44,25 @@ public class TransactionService {
         transactionRepository.save(transaction);
         return accountRepository.update(account);
     }
+    public boolean retrait(String accountId,BigDecimal amount){
+        Optional<Account> accountOpt=accountRepository.findById(accountId);
+        if(accountOpt.isEmpty()){
+            System.out.println("Ce compte n'existe pas");
+            return false;
+        }
+        Account account=accountOpt.get();
+        if(amount.compareTo(account.getBalance())>1){
+            System.out.println("Votre solde n'est suffisant pour effectuer un retrait avec ce montant");
+            return false;
+        }
+        BigDecimal newBalance=account.getBalance().subtract(amount);
+        account.setBalance(newBalance);
+        Transaction transaction=new Transaction(null,amount, Transaction.TransactionType.WIDTHDRAW, Transaction.TransactionStatus.COMPLETED,
+                Instant.now(),account,null,null);
+        transactionRepository.save(transaction);
+        accountRepository.update(account);
+        return true;
+    }
 
     public boolean transfer(String idCompteSource,String idCompteDestination ,BigDecimal amount,Transaction.TransactionType type) {
         Optional<Account> accountSource = accountRepository.findById(idCompteSource);
@@ -139,7 +158,6 @@ public class TransactionService {
 
         return true;
     }
-
 
     public boolean validertransferOut(String transactionId){
         Optional<Transaction> transaction =transactionRepository.findById(transactionId);
