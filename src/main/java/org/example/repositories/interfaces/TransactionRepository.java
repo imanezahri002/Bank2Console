@@ -5,6 +5,7 @@ import org.example.models.Transaction;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,5 @@ public interface TransactionRepository {
     Optional<Transaction> findById(String transactionId);
     boolean validate(String transactionId);
     List<Transaction>findAllTransferExterne();
+
 }

@@ -50,7 +50,6 @@ public class Main {
 
         scanner.close();
     }
-
     private static void login() {
         System.out.print("Email: ");
         String email = scanner.nextLine();
@@ -75,7 +74,6 @@ public class Main {
             System.out.println("Login échoué, utilisateur introuvable.");
         }
     }
-
     private static void adminMenu() {
         int choice;
         do {
@@ -161,7 +159,6 @@ public class Main {
         } while (choice != 9);
         scanner.close();
     }
-
     private static void managerMenu(){
         int choice;
         do {
@@ -198,7 +195,6 @@ public class Main {
         scanner.close();
 
     }
-
     private static void userManagementMenu() {
         int choice;
         do {
@@ -347,7 +343,6 @@ public class Main {
 
 
     }
-
     private static void deposit() {
         System.out.print("Veuillez saisir le CIN du client : ");
         String cin = scanner.nextLine();
@@ -418,7 +413,6 @@ public class Main {
             System.out.println("Echec!");
         }
     }
-
     private static void transfererIn(){
         System.out.print("Veuillez saisir le CIN du client : ");
         String cin = scanner.nextLine();
@@ -461,7 +455,6 @@ public class Main {
             System.out.println("Échec du dépôt.");
         }
     }
-
     private static void transfererOut(){
         System.out.println("Transfer OUT ");
         System.out.println("veuiller entrer votre cin");
@@ -495,7 +488,6 @@ public class Main {
         }
 
     }
-
     private static void validerTransferOut(){
         System.out.println("Voici les transfer out a valider:");
 
@@ -514,7 +506,6 @@ public class Main {
             System.out.println("Echec!");
         }
     }
-
     private static void addFeeRule(){
         System.out.println("=== Ajout d'une Fee Rule ===");
         System.out.println("Choisissez le type d'opération (CREDIT / TRANSACTION_EXTERNE) :");
@@ -541,7 +532,6 @@ public class Main {
             System.out.println("Fee_Rule créé avec succès !");
         }else System.out.println("Erreur lors de la création du Fee_Rule.");
     }
-
     private static void transferExterne(){
         System.out.print("Veuillez saisir le CIN du client : ");
         String cin = scanner.nextLine();
@@ -584,7 +574,6 @@ public class Main {
             System.out.println("Échec du dépôt.");
         }
     }
-
     private static void validerTransferEtranger(){
         System.out.println("Voici les transfer out a valider:");
 
@@ -603,7 +592,6 @@ public class Main {
             System.out.println("Echec!");
         }
     }
-
     private static void addCredit(){
         System.out.println("=== Création d'un crédit ===");
         System.out.print("Veuillez saisir le CIN du client : ");
@@ -638,7 +626,6 @@ public class Main {
         Optional<FeeRule> feeRuleOp=feeRoleRepository.findByAmount(amount, FeeRule.OperationType.CREDIT);
         FeeRule feeRule=feeRuleOp.get();
 
-
         System.out.println("Entrez la durée du crédit (en mois) :");
         int duree = scanner.nextInt();
         scanner.nextLine();
@@ -660,10 +647,7 @@ public class Main {
         } else {
             System.out.println("Erreur lors de la création du crédit.");
         }
-
-
     }
-
     private static void validerCredit(){
         System.out.println("Voici les credits a valider:");
 
@@ -683,6 +667,8 @@ public class Main {
             System.out.println("Echec!");
         }
     }
+
+
 
 
 

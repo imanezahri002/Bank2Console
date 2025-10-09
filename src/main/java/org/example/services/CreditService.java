@@ -11,6 +11,7 @@ import org.example.repositories.interfaces.FeeRuleRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,10 +70,8 @@ public boolean addCredit(Credit credit){
     }else {
         System.out.println("Aucune règle de frais applicable trouvée.");
     }
-
-    BigDecimal dureeMois = BigDecimal.valueOf(credit.getDuree()); // suppose que getDuree() renvoie le nombre de mois
+    BigDecimal dureeMois = BigDecimal.valueOf(credit.getDuree());
     BigDecimal mensualite = totalAmount.divide(dureeMois, 2, RoundingMode.HALF_UP);
-
 
     BigDecimal maxMensualite = salaire.multiply(BigDecimal.valueOf(0.4)); // 40% du salaire
     if (mensualite.compareTo(maxMensualite) > 0) {
@@ -82,7 +81,6 @@ public boolean addCredit(Credit credit){
     credit.setMensualite(mensualite);
     credit.setAmount(totalAmount);
     return creditRepository.save(credit);
-
     }
 
 public boolean validerCredit(UUID creditId) {
@@ -100,6 +98,7 @@ public boolean validerCredit(UUID creditId) {
     creditRepository.validate(credit.getId());
     return true;
 }
+
 
 }
 

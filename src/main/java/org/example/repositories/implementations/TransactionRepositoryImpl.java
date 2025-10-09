@@ -2,6 +2,7 @@ package org.example.repositories.implementations;
 
 import org.example.database.DatabaseConnection;
 import org.example.models.Account;
+import org.example.models.Client;
 import org.example.models.FeeRule;
 import org.example.models.Transaction;
 import org.example.repositories.interfaces.AccountRepository;
@@ -11,10 +12,7 @@ import org.example.repositories.interfaces.TransactionRepository;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class TransactionRepositoryImpl implements TransactionRepository {
 
@@ -206,6 +204,5 @@ public class TransactionRepositoryImpl implements TransactionRepository {
 
     }
 
-
-}
+    }
 

@@ -11,10 +11,7 @@ import org.example.repositories.interfaces.FeeRuleRepository;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class CreditRepositoryImpl implements CreditRepository {
     private final Connection connection;
@@ -27,8 +24,8 @@ public class CreditRepositoryImpl implements CreditRepository {
         this.feeRuleRepository = feeRuleRepository;
     }
 
-    @Override
 
+    @Override
     public boolean save(Credit credit){
         String sql = """
                 INSERT INTO credit (id, amount, duree, status, fee_rule_id, account_id, created_at, updated_at,mensualite)
@@ -61,7 +58,7 @@ public class CreditRepositoryImpl implements CreditRepository {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setObject(1, Credit.CreditStatus.PENDING.name(), java.sql.Types.OTHER);
 
-            try (var rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Credit credit = new Credit(
                             rs.getObject("id", UUID.class),
@@ -108,7 +105,6 @@ public class CreditRepositoryImpl implements CreditRepository {
                     return Optional.of(credit);
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -131,6 +127,8 @@ public class CreditRepositoryImpl implements CreditRepository {
             return false;
         }
     }
+
+
 
 
 

@@ -10,6 +10,7 @@ import org.example.repositories.interfaces.TransactionRepository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,7 +64,6 @@ public class TransactionService {
         accountRepository.update(account);
         return true;
     }
-
     public boolean transfer(String idCompteSource,String idCompteDestination ,BigDecimal amount,Transaction.TransactionType type) {
         Optional<Account> accountSource = accountRepository.findById(idCompteSource);
         Optional<Account> accountDestination = accountRepository.findById(idCompteDestination);
@@ -100,7 +100,6 @@ public class TransactionService {
 
         return transactionRepository.transactionTransferIn(accountS, accountD, amount);
     }
-
     public boolean transferExterne(String idCompteSource,BigDecimal amount,Transaction.TransactionType type) {
         Optional<Account> accountSource = accountRepository.findById(idCompteSource);
 
@@ -150,15 +149,10 @@ public class TransactionService {
                 totalAmount,
                 appliedFeeRule);
 
-
-
         transactionRepository.save(transaction);
-
         System.out.println("Transaction en attente créée avec succès.");
-
         return true;
     }
-
     public boolean validertransferOut(String transactionId){
         Optional<Transaction> transaction =transactionRepository.findById(transactionId);
         if ( transaction.isEmpty()) {
@@ -184,7 +178,6 @@ public class TransactionService {
         Account accountSource = transaction.getAccount();
         BigDecimal amount = transaction.getTotalAmount();
 
-
         accountSource.setBalance(accountSource.getBalance().subtract(transaction.getTotalAmount()));
         accountRepository.update(accountSource);
 
@@ -194,5 +187,4 @@ public class TransactionService {
         System.out.println("Transaction validée et complétée avec succès.");
         return true;
     }
-
 }
